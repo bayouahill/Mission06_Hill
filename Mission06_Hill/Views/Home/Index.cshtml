@@ -2,7 +2,33 @@
     ViewData["Title"] = "Home Page";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="fade-in-up">
+    <div class="text-center mb-5">
+        <h1 class="display-3 mb-3">THE JOEL HILTON FILM COLLECTION</h1>
+        <p class="lead" style="color: var(--text-muted); font-size: 1.2rem; letter-spacing: 3px;">
+            [ DIGITAL CINEMA ARCHIVE // SYSTEM ONLINE ]
+        </p>
+        <div style="width: 100px; height: 3px; background: linear-gradient(90deg, var(--neon-cyan), var(--neon-purple)); margin: 2rem auto;"></div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card p-5 text-center">
+                <h2 style="color: var(--neon-cyan); font-size: 1.5rem; margin-bottom: 1.5rem;">WELCOME TO THE ARCHIVE</h2>
+                <p style="color: var(--text-light); line-height: 1.8; font-size: 1.1rem;">
+                    Access the complete digital catalog of cinematic masterpieces.
+                    Browse, discover, and manage your film collection through our advanced interface.
+                </p>
+                <div class="mt-4">
+                    <a asp-area="" asp-controller="Home" asp-action="MovieForm" class="btn btn-primary btn-lg me-3">
+                        + ADD NEW FILM
+                    </a>
+                    <a asp-area="" asp-controller="Home" asp-action="GetToKnowJoel" class="btn btn-outline-light btn-lg"
+                       style="border-color: var(--neon-purple); color: var(--neon-purple);">
+                        ABOUT CURATOR
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>

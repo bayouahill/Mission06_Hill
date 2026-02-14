@@ -10,5 +10,17 @@ namespace Mission06_Hill.Controllers
         {
             return View();
         }
+
+        public IActionResult GetToKnowJoel()
+        {
+            return View();
+        }
+
+        [HttpGet]
+        public IActionResult MovieForm()
+        {
+            return View(new MovieEntryForm());
+        }
+
     }
 }

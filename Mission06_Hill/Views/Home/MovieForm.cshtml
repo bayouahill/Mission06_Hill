@@ -1,0 +1,91 @@
+﻿@model MovieEntryForm
+
+@{
+    ViewData["Title"] = "Movie Entry";
+}
+
+<div class="fade-in-up">
+    <div class="text-center mb-5">
+        <h1 class="display-4">MOVIE ENTRY</h1>
+        <p class="lead" style="color: var(--text-muted); font-size: 1rem; letter-spacing: 2px;">
+            [ ENTER FILM DATA TO ADD TO ARCHIVE ]
+        </p>
+        <div style="width: 80px; height: 2px; background: linear-gradient(90deg, var(--neon-cyan), var(--neon-purple)); margin: 1.5rem auto;"></div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card p-4 p-md-5">
+                <form method="post">
+                    <div class="row g-4">
+                        <!-- Category -->
+                        <div class="col-md-6">
+                            <label asp-for="Category" class="form-label">Category</label>
+                            <input asp-for="Category" class="form-control" placeholder="e.g., Action, Drama, Sci-Fi" />
+                        </div>
+
+                        <!-- Title -->
+                        <div class="col-md-6">
+                            <label asp-for="Title" class="form-label">Title</label>
+                            <input asp-for="Title" class="form-control" placeholder="Film title" />
+                        </div>
+
+                        <!-- Year -->
+                        <div class="col-md-4">
+                            <label asp-for="Year" class="form-label">Year</label>
+                            <input asp-for="Year" class="form-control" type="number" placeholder="2024" />
+                        </div>
+
+                        <!-- Director -->
+                        <div class="col-md-8">
+                            <label asp-for="Director" class="form-label">Director</label>
+                            <input asp-for="Director" class="form-control" placeholder="Director name" />
+                        </div>
+
+                        <!-- Rating -->
+                        <div class="col-md-6">
+                            <label asp-for="Rating" class="form-label">Rating</label>
+                            <select asp-for="Rating" asp-items="Model.RatingOptions" class="form-select">
+                                <option value="">-- Select Rating --</option>
+                            </select>
+                        </div>
+
+                        <!-- Edited -->
+                        <div class="col-md-6">
+                            <label asp-for="Edited" class="form-label">Was this movie/show edited?</label>
+                            <select asp-for="Edited" class="form-select">
+                                <option value="false">No</option>
+                                <option value="true">Yes</option>
+                            </select>
+                        </div>
+
+                        <!-- Lent To -->
+                        <div class="col-12">
+                            <label asp-for="LentTo" class="form-label">Lent to</label>
+                            <input asp-for="LentTo" class="form-control" placeholder="Person's name (optional)" />
+                        </div>
+
+                        <!-- Notes -->
+                        <div class="col-12">
+                            <label asp-for="Notes" class="form-label">Additional Notes</label>
+                            <textarea asp-for="Notes" class="form-control" rows="4"
+                                      placeholder="Enter any additional information about this film..."
+                                      style="resize: vertical;"></textarea>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="col-12 text-center mt-4">
+                            <button type="submit" class="btn btn-primary btn-lg px-5">
+                                <span style="font-size: 1.2rem;">⚡</span> ADD TO ARCHIVE
+                            </button>
+                            <a asp-action="Index" class="btn btn-outline-light btn-lg ms-3 px-5"
+                               style="border-color: var(--text-muted); color: var(--text-muted);">
+                                CANCEL
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
