@@ -9,9 +9,9 @@ namespace Mission06_Hill.Controllers
     {
         private readonly MovieFormContext _context;
 
-        public HomeController(MovieFormContext context)
+        public HomeController(MovieFormContext newMovie)
         {
-            _context = context;
+            _context = newMovie;
         }
 
         public IActionResult Index()
