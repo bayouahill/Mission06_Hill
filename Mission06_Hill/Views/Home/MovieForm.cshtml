@@ -13,15 +13,23 @@
         <div style="width: 80px; height: 2px; background: linear-gradient(90deg, var(--neon-cyan), var(--neon-purple)); margin: 1.5rem auto;"></div>
     </div>
 
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success text-center">@TempData["Success"]</div>
+    }
+
     <div class="row justify-content-center">
         <div class="col-lg-8">
             <div class="card p-4 p-md-5">
                 <form method="post">
                     <div class="row g-4">
+
                         <!-- Category -->
                         <div class="col-md-6">
-                            <label asp-for="Category" class="form-label">Category</label>
-                            <input asp-for="Category" class="form-control" placeholder="e.g., Action, Drama, Sci-Fi" />
+                            <label asp-for="CategoryId" class="form-label">Category</label>
+                            <select asp-for="CategoryId" asp-items="Model.CategoryOptions" class="form-select">
+                                <option value="">-- Select Category --</option>
+                            </select>
                         </div>
 
                         <!-- Title -->
@@ -33,19 +41,31 @@
                         <!-- Year -->
                         <div class="col-md-4">
                             <label asp-for="Year" class="form-label">Year</label>
-                            <input asp-for="Year" class="form-control" type="number" placeholder="2024" />
+                            <input asp-for="Year" class="form-control" placeholder="e.g. 2024 or 2001-2002" />
                         </div>
 
                         <!-- Director -->
                         <div class="col-md-8">
-                            <label asp-for="Director" class="form-label">Director</label>
-                            <input asp-for="Director" class="form-control" placeholder="Director name" />
+                            <label asp-for="DirectorName" class="form-label">Director</label>
+                            <input asp-for="DirectorName" class="form-control"
+                                   list="directorList"
+                                   placeholder="Enter director name (e.g., Christopher Nolan)"
+                                   autocomplete="off" />
+                            <datalist id="directorList">
+                                @if (ViewBag.Directors != null)
+                                {
+                                    foreach (var director in (List<Director>)ViewBag.Directors)
+                                    {
+                                        <option value="@director.DirectorName" />
+                                    }
+                                }
+                            </datalist>
                         </div>
 
                         <!-- Rating -->
                         <div class="col-md-6">
-                            <label asp-for="Rating" class="form-label">Rating</label>
-                            <select asp-for="Rating" asp-items="Model.RatingOptions" class="form-select">
+                            <label asp-for="RatingId" class="form-label">Rating</label>
+                            <select asp-for="RatingId" asp-items="Model.RatingOptions" class="form-select">
                                 <option value="">-- Select Rating --</option>
                             </select>
                         </div>
@@ -69,11 +89,11 @@
                         <div class="col-12">
                             <label asp-for="Notes" class="form-label">Additional Notes</label>
                             <textarea asp-for="Notes" class="form-control" rows="4"
-                                      placeholder="Enter any additional information about this film..."
+                                      placeholder="Enter any additional information..."
                                       style="resize: vertical;"></textarea>
                         </div>
 
-                        <!-- Submit Button -->
+                        <!-- Submit -->
                         <div class="col-12 text-center mt-4">
                             <button type="submit" class="btn btn-primary btn-lg px-5">
                                 <span style="font-size: 1.2rem;">⚡</span> ADD TO ARCHIVE
@@ -83,6 +103,7 @@
                                 CANCEL
                             </a>
                         </div>
+
                     </div>
                 </form>
             </div>
