@@ -1,9 +1,77 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
+﻿@{
+    ViewData["Title"] = "Get to Know Joel";
 }
 
-<h1>Get to Know Joel</h1>
+<div class="fade-in-up">
+    <!-- Header Section -->
+    <div class="text-center mb-5">
+        <h1 class="display-4">GET TO KNOW JOEL</h1>
+        <p class="lead" style="color: var(--text-muted); font-size: 1rem; letter-spacing: 2px;">
+            [ CURATOR PROFILE // SYSTEM DATA ]
+        </p>
+        <div style="width: 80px; height: 2px; background: linear-gradient(90deg, var(--neon-cyan), var(--neon-purple)); margin: 1.5rem auto;"></div>
+    </div>
 
-<h2>
+    <!-- Main Content Card -->
+    <div class="row justify-content-center mb-5">
+        <div class="col-lg-10">
+            <div class="card p-4 p-md-5 text-center">
+                <h2 style="color: var(--neon-pink); font-size: 1.8rem; margin-bottom: 1.5rem; text-shadow: 0 0 15px rgba(255, 0, 128, 0.8);">
+                    FILM CURATOR & CRITIC
+                </h2>
+                <p style="color: var(--text-light); font-size: 1.2rem; line-height: 1.8; margin-bottom: 0;">
+                    Joel rates films so you don't have to sit through the bad ones. <br />
+                    <span style="color: var(--neon-cyan); text-shadow: 0 0 10px rgba(0, 255, 255, 0.6);">You're welcome.</span>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Features Section -->
+    <div class="row g-4">
+        <!-- Quick Wits Comedy Card -->
+        <div class="col-md-6">
+            <div class="card p-4 h-100">
+                <div class="text-center">
+                    <div style="font-size: 3rem; margin-bottom: 1rem;">🎭</div>
+                    <h3 style="color: var(--neon-cyan); font-size: 1.3rem; margin-bottom: 1.5rem; text-shadow: 0 0 10px rgba(0, 255, 255, 0.6);">
+                        COMEDY SHOWS
+                    </h3>
+                    <p style="color: var(--text-light); line-height: 1.6; margin-bottom: 2rem;">
+                        Come watch an uplifting night of comedy!
+                    </p>
+                    <a href="https://www.qwcomedy.com/" target="_blank" class="btn btn-primary">
+                        QUICK WITS COMEDY →
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bacon Sale Card -->
+        <div class="col-md-6">
+            <div class="card p-4 h-100">
+                <div class="text-center">
+                    <div style="font-size: 3rem; margin-bottom: 1rem;">🥓</div>
+                    <h3 style="color: var(--neon-pink); font-size: 1.3rem; margin-bottom: 1.5rem; text-shadow: 0 0 10px rgba(255, 0, 128, 0.6);">
+                        QUALITY BACON
+                    </h3>
+                    <p style="color: var(--text-light); line-height: 1.6; margin-bottom: 2rem;">
+                        Buy some quality bacon here
+                    </p>
+                    <a href="https://baconsale.com/" target="_blank" class="btn btn-primary mb-3">
+                        BUY BACON NOW →
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bacon Sale Image Section -->
+    <div class="row justify-content-center mt-5">
+        <div class="col-lg-8 text-center">
+            <a href="https://baconsale.com/" target="_blank" class="bacon-image-link">
+                <img src="~/img/baconsalekate.jpg" alt="Baconsale" class="bacon-image" />
+            </a>
+        </div>
+    </div>
+</div>
