@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 using Mission06_Hill.Models;
-using System;
 
 namespace Mission06_Hill.Controllers
 {
@@ -24,6 +24,8 @@ namespace Mission06_Hill.Controllers
             return View();
         }
 
+        // ── ADD MOVIE ────────────────────────────────────────────────────────────
+
         [HttpGet]
         public IActionResult MovieForm()
         {
@@ -33,38 +35,19 @@ namespace Mission06_Hill.Controllers
                 RatingOptions = new SelectList(_context.Ratings, "RatingId", "RatingName")
             };
 
-            // Pass directors list for autocomplete
             ViewBag.Directors = _context.Directors.OrderBy(d => d.DirectorName).ToList();
 
             return View(model);
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult MovieForm(MovieEntryForm formData)
         {
             if (ModelState.IsValid)
             {
-                // Find or create director (case-insensitive)
-                var directorName = formData.DirectorName.Trim();
-                var existingDirector = _context.Directors
-                    .FirstOrDefault(d => d.DirectorName.ToLower() == directorName.ToLower());
+                int directorId = FindOrCreateDirector(formData.DirectorName.Trim());
 
-                int directorId;
-                if (existingDirector != null)
-                {
-                    // Use existing director
-                    directorId = existingDirector.DirectorId;
-                }
-                else
-                {
-                    // Create new director
-                    var newDirector = new Director { DirectorName = directorName };
-                    _context.Directors.Add(newDirector);
-                    _context.SaveChanges(); // Save to get the new DirectorId
-                    directorId = newDirector.DirectorId;
-                }
-
-                // Create movie with the director ID
                 var movie = new Movie
                 {
                     Title = formData.Title,
@@ -78,18 +61,126 @@ namespace Mission06_Hill.Controllers
                 };
                 _context.Movies.Add(movie);
                 _context.SaveChanges();
-                TempData["Success"] = "Movie added successfully!";
-                return RedirectToAction("MovieForm");
+                TempData["Success"] = $"\"{formData.Title}\" added to the archive!";
+                return RedirectToAction("MovieList");
             }
 
-            // reload dropdowns if validation fails
+            // Reload dropdowns if validation fails
             formData.CategoryOptions = new SelectList(_context.Categories, "CategoryId", "CategoryName");
             formData.RatingOptions = new SelectList(_context.Ratings, "RatingId", "RatingName");
-
-            // Reload directors for autocomplete
             ViewBag.Directors = _context.Directors.OrderBy(d => d.DirectorName).ToList();
 
             return View(formData);
+        }
+
+        // ── LIST MOVIES ──────────────────────────────────────────────────────────
+
+        public IActionResult MovieList()
+        {
+            var movies = _context.Movies
+                .Include(m => m.Category)
+                .Include(m => m.Director)
+                .Include(m => m.Rating)
+                .OrderBy(m => m.Title)
+                .ToList();
+
+            return View(movies);
+        }
+
+        // ── EDIT MOVIE ───────────────────────────────────────────────────────────
+
+        [HttpGet]
+        public IActionResult EditMovie(int id)
+        {
+            var movie = _context.Movies
+                .Include(m => m.Director)
+                .FirstOrDefault(m => m.MovieId == id);
+
+            if (movie == null) return NotFound();
+
+            var model = new MovieEntryForm
+            {
+                MovieId = movie.MovieId,
+                Title = movie.Title,
+                Year = movie.Year,
+                Edited = movie.Edited,
+                LentTo = movie.LentTo,
+                Notes = movie.Notes,
+                CategoryId = movie.CategoryId,
+                RatingId = movie.RatingId,
+                DirectorName = movie.Director?.DirectorName ?? string.Empty,
+                CategoryOptions = new SelectList(_context.Categories, "CategoryId", "CategoryName", movie.CategoryId),
+                RatingOptions = new SelectList(_context.Ratings, "RatingId", "RatingName", movie.RatingId)
+            };
+
+            ViewBag.Directors = _context.Directors.OrderBy(d => d.DirectorName).ToList();
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult EditMovie(int id, MovieEntryForm formData)
+        {
+            if (ModelState.IsValid)
+            {
+                var movie = _context.Movies.Find(id);
+                if (movie == null) return NotFound();
+
+                int directorId = FindOrCreateDirector(formData.DirectorName.Trim());
+
+                movie.Title = formData.Title;
+                movie.Year = formData.Year;
+                movie.Edited = formData.Edited;
+                movie.LentTo = formData.LentTo;
+                movie.Notes = formData.Notes;
+                movie.CategoryId = formData.CategoryId;
+                movie.RatingId = formData.RatingId;
+                movie.DirectorId = directorId;
+
+                _context.SaveChanges();
+                TempData["Success"] = $"\"{formData.Title}\" updated successfully!";
+                return RedirectToAction("MovieList");
+            }
+
+            // Reload dropdowns if validation fails
+            formData.CategoryOptions = new SelectList(_context.Categories, "CategoryId", "CategoryName", formData.CategoryId);
+            formData.RatingOptions = new SelectList(_context.Ratings, "RatingId", "RatingName", formData.RatingId);
+            ViewBag.Directors = _context.Directors.OrderBy(d => d.DirectorName).ToList();
+
+            return View(formData);
+        }
+
+        // ── DELETE MOVIE ─────────────────────────────────────────────────────────
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult DeleteMovie(int id)
+        {
+            var movie = _context.Movies.Find(id);
+            if (movie != null)
+            {
+                _context.Movies.Remove(movie);
+                _context.SaveChanges();
+                TempData["Success"] = $"\"{movie.Title}\" removed from the archive.";
+            }
+            return RedirectToAction("MovieList");
+        }
+
+        // ── HELPER ───────────────────────────────────────────────────────────────
+
+        private int FindOrCreateDirector(string directorName)
+        {
+            var existing = _context.Directors
+                .FirstOrDefault(d => d.DirectorName.ToLower() == directorName.ToLower());
+
+            if (existing != null)
+                return existing.DirectorId;
+
+            var newDirector = new Director { DirectorName = directorName };
+            _context.Directors.Add(newDirector);
+            _context.SaveChanges();
+            return newDirector.DirectorId;
         }
     }
 }

@@ -1,0 +1,120 @@
+@model MovieEntryForm
+
+@{
+    ViewData["Title"] = "Edit Film";
+}
+
+<div class="fade-in-up">
+
+    <!-- Page Header -->
+    <div class="text-center mb-5">
+        <h1 class="display-4">EDIT FILM</h1>
+        <p class="lead" style="color: var(--text-muted); font-size: 1rem; letter-spacing: 2px;">
+            [ MODIFY FILM DATA IN ARCHIVE ]
+        </p>
+        <div style="width: 80px; height: 2px; background: linear-gradient(90deg, var(--neon-cyan), var(--neon-purple)); margin: 1.5rem auto;"></div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card p-4 p-md-5">
+                <form asp-action="EditMovie" asp-route-id="@Model.MovieId" method="post">
+                    @Html.AntiForgeryToken()
+                    <div class="row g-4">
+
+                        <!-- Category -->
+                        <div class="col-md-6">
+                            <label asp-for="CategoryId" class="form-label">Category</label>
+                            <select asp-for="CategoryId" asp-items="Model.CategoryOptions" class="form-select">
+                                <option value="">-- Select Category --</option>
+                            </select>
+                            <span asp-validation-for="CategoryId" class="text-danger small"></span>
+                        </div>
+
+                        <!-- Title -->
+                        <div class="col-md-6">
+                            <label asp-for="Title" class="form-label">Title</label>
+                            <input asp-for="Title" class="form-control" placeholder="Film title" />
+                            <span asp-validation-for="Title" class="text-danger small"></span>
+                        </div>
+
+                        <!-- Year -->
+                        <div class="col-md-4">
+                            <label asp-for="Year" class="form-label">Year</label>
+                            <input asp-for="Year" class="form-control" placeholder="e.g. 2024 or 2001-2002" />
+                            <span asp-validation-for="Year" class="text-danger small"></span>
+                        </div>
+
+                        <!-- Director -->
+                        <div class="col-md-8">
+                            <label asp-for="DirectorName" class="form-label">Director</label>
+                            <input asp-for="DirectorName" class="form-control"
+                                   list="directorList"
+                                   placeholder="Enter director name"
+                                   autocomplete="off" />
+                            <datalist id="directorList">
+                                @if (ViewBag.Directors != null)
+                                {
+                                    foreach (var director in (List<Director>)ViewBag.Directors)
+                                    {
+                                        <option value="@director.DirectorName" />
+                                    }
+                                }
+                            </datalist>
+                            <span asp-validation-for="DirectorName" class="text-danger small"></span>
+                        </div>
+
+                        <!-- Rating -->
+                        <div class="col-md-6">
+                            <label asp-for="RatingId" class="form-label">Rating</label>
+                            <select asp-for="RatingId" asp-items="Model.RatingOptions" class="form-select">
+                                <option value="">-- Select Rating --</option>
+                            </select>
+                            <span asp-validation-for="RatingId" class="text-danger small"></span>
+                        </div>
+
+                        <!-- Edited -->
+                        <div class="col-md-6">
+                            <label asp-for="Edited" class="form-label">Was this movie/show edited?</label>
+                            <select asp-for="Edited" class="form-select">
+                                <option value="false">No</option>
+                                <option value="true">Yes</option>
+                            </select>
+                        </div>
+
+                        <!-- Lent To -->
+                        <div class="col-12">
+                            <label asp-for="LentTo" class="form-label">Lent to</label>
+                            <input asp-for="LentTo" class="form-control" placeholder="Person's name (optional)" />
+                        </div>
+
+                        <!-- Notes -->
+                        <div class="col-12">
+                            <label asp-for="Notes" class="form-label">Additional Notes</label>
+                            <textarea asp-for="Notes" class="form-control" rows="4"
+                                      placeholder="Enter any additional information..."
+                                      style="resize: vertical;"></textarea>
+                            <span asp-validation-for="Notes" class="text-danger small"></span>
+                        </div>
+
+                        <!-- Buttons -->
+                        <div class="col-12 text-center mt-4">
+                            <button type="submit" class="btn btn-primary btn-lg px-5">
+                                <span style="font-size: 1.1rem;">&#128190;</span> SAVE CHANGES
+                            </button>
+                            <a asp-action="MovieList" class="btn btn-outline-light btn-lg ms-3 px-5"
+                               style="border-color: var(--text-muted); color: var(--text-muted);">
+                                CANCEL
+                            </a>
+                        </div>
+
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+}
