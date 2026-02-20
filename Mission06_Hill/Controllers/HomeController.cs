@@ -9,9 +9,13 @@ namespace Mission06_Hill.Controllers
     {
         private readonly MovieFormContext _context;
 
-        public HomeController(MovieFormContext newMovie)
+        // Ratings are a fixed set — stored as plain text in the Movies table
+        private static readonly string[] KnownRatings =
+            { "G", "PG", "PG-13", "R", "NR", "UR", "TV-G", "TV-PG", "TV-14", "TV-Y7" };
+
+        public HomeController(MovieFormContext context)
         {
-            _context = newMovie;
+            _context = context;
         }
 
         public IActionResult Index()
@@ -31,12 +35,11 @@ namespace Mission06_Hill.Controllers
         {
             var model = new MovieEntryForm
             {
-                CategoryOptions = new SelectList(_context.Categories, "CategoryId", "CategoryName"),
-                RatingOptions = new SelectList(_context.Ratings, "RatingId", "RatingName")
+                CategoryOptions = new SelectList(
+                    _context.Categories.OrderBy(c => c.CategoryName), "CategoryId", "CategoryName")
             };
 
-            ViewBag.Directors = _context.Directors.OrderBy(d => d.DirectorName).ToList();
-
+            LoadFormViewBag();
             return View(model);
         }
 
@@ -46,18 +49,17 @@ namespace Mission06_Hill.Controllers
         {
             if (ModelState.IsValid)
             {
-                int directorId = FindOrCreateDirector(formData.DirectorName.Trim());
-
                 var movie = new Movie
                 {
-                    Title = formData.Title,
-                    Year = formData.Year,
-                    Edited = formData.Edited,
-                    LentTo = formData.LentTo,
-                    Notes = formData.Notes,
-                    CategoryId = formData.CategoryId,
-                    DirectorId = directorId,
-                    RatingId = formData.RatingId
+                    CategoryId   = formData.CategoryId,
+                    Title        = formData.Title,
+                    Year         = formData.Year,
+                    Director     = formData.Director?.Trim(),
+                    Rating       = formData.Rating,
+                    Edited       = formData.Edited,
+                    LentTo       = formData.LentTo,
+                    CopiedToPlex = formData.CopiedToPlex,
+                    Notes        = formData.Notes
                 };
                 _context.Movies.Add(movie);
                 _context.SaveChanges();
@@ -66,10 +68,9 @@ namespace Mission06_Hill.Controllers
             }
 
             // Reload dropdowns if validation fails
-            formData.CategoryOptions = new SelectList(_context.Categories, "CategoryId", "CategoryName");
-            formData.RatingOptions = new SelectList(_context.Ratings, "RatingId", "RatingName");
-            ViewBag.Directors = _context.Directors.OrderBy(d => d.DirectorName).ToList();
-
+            formData.CategoryOptions = new SelectList(
+                _context.Categories.OrderBy(c => c.CategoryName), "CategoryId", "CategoryName");
+            LoadFormViewBag(formData.Rating);
             return View(formData);
         }
 
@@ -79,8 +80,6 @@ namespace Mission06_Hill.Controllers
         {
             var movies = _context.Movies
                 .Include(m => m.Category)
-                .Include(m => m.Director)
-                .Include(m => m.Rating)
                 .OrderBy(m => m.Title)
                 .ToList();
 
@@ -92,29 +91,27 @@ namespace Mission06_Hill.Controllers
         [HttpGet]
         public IActionResult EditMovie(int id)
         {
-            var movie = _context.Movies
-                .Include(m => m.Director)
-                .FirstOrDefault(m => m.MovieId == id);
-
+            var movie = _context.Movies.Find(id);
             if (movie == null) return NotFound();
 
             var model = new MovieEntryForm
             {
-                MovieId = movie.MovieId,
-                Title = movie.Title,
-                Year = movie.Year,
-                Edited = movie.Edited,
-                LentTo = movie.LentTo,
-                Notes = movie.Notes,
-                CategoryId = movie.CategoryId,
-                RatingId = movie.RatingId,
-                DirectorName = movie.Director?.DirectorName ?? string.Empty,
-                CategoryOptions = new SelectList(_context.Categories, "CategoryId", "CategoryName", movie.CategoryId),
-                RatingOptions = new SelectList(_context.Ratings, "RatingId", "RatingName", movie.RatingId)
+                MovieId      = movie.MovieId,
+                CategoryId   = movie.CategoryId,
+                Title        = movie.Title,
+                Year         = movie.Year,
+                Director     = movie.Director,
+                Rating       = movie.Rating,
+                Edited       = movie.Edited,
+                LentTo       = movie.LentTo,
+                CopiedToPlex = movie.CopiedToPlex,
+                Notes        = movie.Notes,
+                CategoryOptions = new SelectList(
+                    _context.Categories.OrderBy(c => c.CategoryName),
+                    "CategoryId", "CategoryName", movie.CategoryId)
             };
 
-            ViewBag.Directors = _context.Directors.OrderBy(d => d.DirectorName).ToList();
-
+            LoadFormViewBag(movie.Rating);
             return View(model);
         }
 
@@ -127,16 +124,15 @@ namespace Mission06_Hill.Controllers
                 var movie = _context.Movies.Find(id);
                 if (movie == null) return NotFound();
 
-                int directorId = FindOrCreateDirector(formData.DirectorName.Trim());
-
-                movie.Title = formData.Title;
-                movie.Year = formData.Year;
-                movie.Edited = formData.Edited;
-                movie.LentTo = formData.LentTo;
-                movie.Notes = formData.Notes;
-                movie.CategoryId = formData.CategoryId;
-                movie.RatingId = formData.RatingId;
-                movie.DirectorId = directorId;
+                movie.CategoryId   = formData.CategoryId;
+                movie.Title        = formData.Title;
+                movie.Year         = formData.Year;
+                movie.Director     = formData.Director?.Trim();
+                movie.Rating       = formData.Rating;
+                movie.Edited       = formData.Edited;
+                movie.LentTo       = formData.LentTo;
+                movie.CopiedToPlex = formData.CopiedToPlex;
+                movie.Notes        = formData.Notes;
 
                 _context.SaveChanges();
                 TempData["Success"] = $"\"{formData.Title}\" updated successfully!";
@@ -144,10 +140,10 @@ namespace Mission06_Hill.Controllers
             }
 
             // Reload dropdowns if validation fails
-            formData.CategoryOptions = new SelectList(_context.Categories, "CategoryId", "CategoryName", formData.CategoryId);
-            formData.RatingOptions = new SelectList(_context.Ratings, "RatingId", "RatingName", formData.RatingId);
-            ViewBag.Directors = _context.Directors.OrderBy(d => d.DirectorName).ToList();
-
+            formData.CategoryOptions = new SelectList(
+                _context.Categories.OrderBy(c => c.CategoryName),
+                "CategoryId", "CategoryName", formData.CategoryId);
+            LoadFormViewBag(formData.Rating);
             return View(formData);
         }
 
@@ -169,18 +165,19 @@ namespace Mission06_Hill.Controllers
 
         // ── HELPER ───────────────────────────────────────────────────────────────
 
-        private int FindOrCreateDirector(string directorName)
+        /// <summary>
+        /// Populates ViewBag.Directors (autocomplete) and ViewBag.Ratings (select list).
+        /// </summary>
+        private void LoadFormViewBag(string? selectedRating = null)
         {
-            var existing = _context.Directors
-                .FirstOrDefault(d => d.DirectorName.ToLower() == directorName.ToLower());
+            ViewBag.Directors = _context.Movies
+                .Where(m => m.Director != null)
+                .Select(m => m.Director!)
+                .Distinct()
+                .OrderBy(d => d)
+                .ToList();
 
-            if (existing != null)
-                return existing.DirectorId;
-
-            var newDirector = new Director { DirectorName = directorName };
-            _context.Directors.Add(newDirector);
-            _context.SaveChanges();
-            return newDirector.DirectorId;
+            ViewBag.Ratings = new SelectList(KnownRatings, selectedRating);
         }
     }
 }

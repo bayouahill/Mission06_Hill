@@ -1,27 +1,23 @@
-﻿@model MovieEntryForm
+@model MovieEntryForm
 
 @{
-    ViewData["Title"] = "Movie Entry";
+    ViewData["Title"] = "Add Film";
 }
 
 <div class="fade-in-up">
     <div class="text-center mb-5">
-        <h1 class="display-4">MOVIE ENTRY</h1>
+        <h1 class="display-4">ADD FILM</h1>
         <p class="lead" style="color: var(--text-muted); font-size: 1rem; letter-spacing: 2px;">
             [ ENTER FILM DATA TO ADD TO ARCHIVE ]
         </p>
         <div style="width: 80px; height: 2px; background: linear-gradient(90deg, var(--neon-cyan), var(--neon-purple)); margin: 1.5rem auto;"></div>
     </div>
 
-    @if (TempData["Success"] != null)
-    {
-        <div class="alert alert-success text-center">@TempData["Success"]</div>
-    }
-
     <div class="row justify-content-center">
         <div class="col-lg-8">
             <div class="card p-4 p-md-5">
-                <form method="post">
+                <form asp-action="MovieForm" method="post">
+                    @Html.AntiForgeryToken()
                     <div class="row g-4">
 
                         <!-- Category -->
@@ -30,75 +26,103 @@
                             <select asp-for="CategoryId" asp-items="Model.CategoryOptions" class="form-select">
                                 <option value="">-- Select Category --</option>
                             </select>
+                            <span asp-validation-for="CategoryId" class="text-danger small"></span>
                         </div>
 
-                        <!-- Title -->
+                        <!-- Title (required) -->
                         <div class="col-md-6">
-                            <label asp-for="Title" class="form-label">Title</label>
+                            <label asp-for="Title" class="form-label">
+                                Title <span style="color: var(--neon-pink);">*</span>
+                            </label>
                             <input asp-for="Title" class="form-control" placeholder="Film title" />
+                            <span asp-validation-for="Title" class="text-danger small"></span>
                         </div>
 
-                        <!-- Year -->
+                        <!-- Year (required, min 1888) -->
                         <div class="col-md-4">
-                            <label asp-for="Year" class="form-label">Year</label>
-                            <input asp-for="Year" class="form-control" placeholder="e.g. 2024 or 2001-2002" />
+                            <label asp-for="Year" class="form-label">
+                                Year <span style="color: var(--neon-pink);">*</span>
+                            </label>
+                            <input asp-for="Year" type="number" class="form-control"
+                                   placeholder="e.g. 1995"
+                                   min="1888" max="2100" />
+                            <span asp-validation-for="Year" class="text-danger small"></span>
                         </div>
 
                         <!-- Director -->
                         <div class="col-md-8">
-                            <label asp-for="DirectorName" class="form-label">Director</label>
-                            <input asp-for="DirectorName" class="form-control"
+                            <label asp-for="Director" class="form-label">Director</label>
+                            <input asp-for="Director" class="form-control"
                                    list="directorList"
                                    placeholder="Enter director name (e.g., Christopher Nolan)"
                                    autocomplete="off" />
                             <datalist id="directorList">
                                 @if (ViewBag.Directors != null)
                                 {
-                                    foreach (var director in (List<Director>)ViewBag.Directors)
+                                    foreach (var name in (List<string>)ViewBag.Directors)
                                     {
-                                        <option value="@director.DirectorName" />
+                                        <option value="@name" />
                                     }
                                 }
                             </datalist>
                         </div>
 
                         <!-- Rating -->
-                        <div class="col-md-6">
-                            <label asp-for="RatingId" class="form-label">Rating</label>
-                            <select asp-for="RatingId" asp-items="Model.RatingOptions" class="form-select">
+                        <div class="col-md-4">
+                            <label asp-for="Rating" class="form-label">Rating</label>
+                            <select asp-for="Rating" asp-items="ViewBag.Ratings" class="form-select">
                                 <option value="">-- Select Rating --</option>
                             </select>
                         </div>
 
-                        <!-- Edited -->
-                        <div class="col-md-6">
-                            <label asp-for="Edited" class="form-label">Was this movie/show edited?</label>
+                        <!-- Edited (required) -->
+                        <div class="col-md-4">
+                            <label asp-for="Edited" class="form-label">
+                                Edited? <span style="color: var(--neon-pink);">*</span>
+                            </label>
                             <select asp-for="Edited" class="form-select">
                                 <option value="false">No</option>
                                 <option value="true">Yes</option>
                             </select>
                         </div>
 
+                        <!-- Copied to Plex (required) -->
+                        <div class="col-md-4">
+                            <label asp-for="CopiedToPlex" class="form-label">
+                                Copied to Plex? <span style="color: var(--neon-pink);">*</span>
+                            </label>
+                            <select asp-for="CopiedToPlex" class="form-select">
+                                <option value="false">No</option>
+                                <option value="true">Yes</option>
+                            </select>
+                        </div>
+
                         <!-- Lent To -->
-                        <div class="col-12">
+                        <div class="col-md-6">
                             <label asp-for="LentTo" class="form-label">Lent to</label>
                             <input asp-for="LentTo" class="form-control" placeholder="Person's name (optional)" />
                         </div>
 
                         <!-- Notes -->
+                        <div class="col-md-6">
+                            <label asp-for="Notes" class="form-label">Notes <small style="color: var(--text-muted);">(max 25 chars)</small></label>
+                            <input asp-for="Notes" class="form-control" placeholder="e.g. Plex, Blu-ray..." maxlength="25" />
+                            <span asp-validation-for="Notes" class="text-danger small"></span>
+                        </div>
+
+                        <!-- Required legend -->
                         <div class="col-12">
-                            <label asp-for="Notes" class="form-label">Additional Notes</label>
-                            <textarea asp-for="Notes" class="form-control" rows="4"
-                                      placeholder="Enter any additional information..."
-                                      style="resize: vertical;"></textarea>
+                            <small style="color: var(--text-muted);">
+                                <span style="color: var(--neon-pink);">*</span> Required fields
+                            </small>
                         </div>
 
                         <!-- Submit -->
-                        <div class="col-12 text-center mt-4">
+                        <div class="col-12 text-center mt-2">
                             <button type="submit" class="btn btn-primary btn-lg px-5">
-                                <span style="font-size: 1.2rem;">⚡</span> ADD TO ARCHIVE
+                                <span style="font-size: 1.2rem;">&#9889;</span> ADD TO ARCHIVE
                             </button>
-                            <a asp-action="Index" class="btn btn-outline-light btn-lg ms-3 px-5"
+                            <a asp-action="MovieList" class="btn btn-outline-light btn-lg ms-3 px-5"
                                style="border-color: var(--text-muted); color: var(--text-muted);">
                                 CANCEL
                             </a>
@@ -110,3 +134,7 @@
         </div>
     </div>
 </div>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+}
